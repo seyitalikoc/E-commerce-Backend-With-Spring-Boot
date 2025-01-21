@@ -55,6 +55,9 @@ public class UserService {
 
     // Save User
     public DtoUser saveUser(DtoUserIU dtoUserIU) {
+        if(findUserByEmail(dtoUserIU.getEmail())!= null){
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION,"Email already used."));
+        }
         User newUser = createUser(dtoUserIU);
         Cart cart = createCartForUser(newUser);
         newUser.setCart(cart);
@@ -100,8 +103,8 @@ public class UserService {
 
     public DtoUser updateUserPassword(String email, UpdatePassword updatePassword){
         User user = findUserByEmail(email);
-        if (!passwordCheck(user.getPassword(),updatePassword)){
-            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION,""));
+        if (passwordCheck(user.getPassword(),updatePassword)){
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION,"Old password is incorrect."));
         }
         user.setPassword(new BCryptPasswordEncoder().encode(updatePassword.getNewPassword()));
         userRepository.save(user);
@@ -113,10 +116,9 @@ public class UserService {
     }
 
     // Delete User By id
-    public String deleteUser(Long id){
+    public String deleteUser(Long id) {
         User user = findUserByUserId(id);
 
-        cartRepository.delete(user.getCart());
         userRepository.delete(user);
         return "User deleted: " + id;
     }

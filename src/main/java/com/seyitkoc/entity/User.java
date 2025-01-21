@@ -33,7 +33,7 @@ public class User implements UserDetails{
     @Column(name = "pass", nullable = false)
     private String password;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Cart cart;
 
 

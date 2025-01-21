@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>23</java.version>
+		<spring.boot.version>3.1.0</spring.boot.version>
+		<springdoc.version>2.2.0</springdoc.version>
 	</properties>
 	<dependencies>
 		<dependency>

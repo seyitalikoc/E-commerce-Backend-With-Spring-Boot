@@ -66,7 +66,7 @@ public class CartService {
         Cart cart = user.getCart();
         Product product = findProductById(itemId);
         if (!cartContainsProduct(cart,product)){
-            throw new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Product already in cart"));
+            throw new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Product not in cart"));
         }
         removeProductFromCart(cart,product);
         cartRepository.save(cart);
