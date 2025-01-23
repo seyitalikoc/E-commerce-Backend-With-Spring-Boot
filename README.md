@@ -329,6 +329,7 @@ GET   http://localhost:8080/rest/api/category/get?category=elektronik
 #### Query Parameters
 - mainCat : MainCategory Name (String)
 - subCat : SubCategory Name (String)
+- page : Page number (Integer)
   
 #### Example Request
 ```bash
@@ -345,29 +346,57 @@ GET   http://localhost:8080/rest/api/product/getList?subCat=bilgisayar_tablet
 {
     "result": true,
     "errorMessage": null,
-    "data": [
-        {
-            "id": 1,
-            "productName": "Product 1",
-            "description": "Description for Product 1",
-            "price": 19.99,
-            "subCategory": {
-                "id": 0,
-                "categoryName": "bilgisayar_tablet"
-            }
+    "data": {
+        "content": [
+            {
+                "id": 1,
+                "productName": "Product 1",
+                "description": "Description for Product 1",
+                "price": 19.99,
+                "subCategory": {
+                    "id": 0,
+                    "categoryName": "bilgisayar_tablet"
+                }
+            },
+            {
+                "id": 2,
+                "productName": "Product 2",
+                "description": "Description for Product 2",
+                "price": 29.99,
+                "subCategory": {
+                    "id": 0,
+                    "categoryName": "bilgisayar_tablet"
+                }
+            },
+            ...
+        }
+      ]
+    "pageable": {
+            "pageNumber": 0,
+            "pageSize": 10,
+            "sort": {
+                "empty": true,
+                "sorted": false,
+                "unsorted": true
+            },
+            "offset": 0,
+            "paged": true,
+            "unpaged": false
         },
-        {
-            "id": 2,
-            "productName": "Product 2",
-            "description": "Description for Product 2",
-            "price": 29.99,
-            "subCategory": {
-                "id": 0,
-                "categoryName": "bilgisayar_tablet"
-            }
+        "last": false,
+        "totalPages": 6,
+        "totalElements": 54,
+        "size": 10,
+        "number": 0,
+        "sort": {
+            "empty": true,
+            "sorted": false,
+            "unsorted": true
         },
-        ...
-    ]
+        "first": true,
+        "numberOfElements": 10,
+        "empty": false
+  }
 }
 ```
    
@@ -394,28 +423,56 @@ GET   http://localhost:8080/rest/api/product/getList?subCat=bilgisayar_tablet
   
 #### Query Parameters
 - q : Searching keyword (String)
+- page : Page number (Integer)
   
 #### Example Request
 ```bash
-GET   http://localhost:8080/rest/api/category/search?q=product 12
+GET   http://localhost:8080/rest/api/product/search?q=product 12
 ```
 #### Success Response
 ```json
 {
     "result": true,
     "errorMessage": null,
-    "data": [
-        {
-            "id": 12,
-            "productName": "Product 12",
-            "description": "Description for Product 12",
-            "price": 129.99,
-            "subCategory": {
-                "id": 0,
-                "categoryName": "ayakkabi"
+    "data": {
+        "content": [
+            {
+                "id": 12,
+                "productName": "Product 12",
+                "description": "Description for Product 12",
+                "price": 129.99,
+                "subCategory": {
+                    "id": 0,
+                    "categoryName": "ayakkabi"
+                }
             }
-        }
-    ]
+        ],
+        "pageable": {
+            "pageNumber": 0,
+            "pageSize": 10,
+            "sort": {
+                "empty": true,
+                "sorted": false,
+                "unsorted": true
+            },
+            "offset": 0,
+            "paged": true,
+            "unpaged": false
+        },
+        "last": true,
+        "totalPages": 1,
+        "totalElements": 1,
+        "size": 10,
+        "number": 0,
+        "sort": {
+            "empty": true,
+            "sorted": false,
+            "unsorted": true
+        },
+        "first": true,
+        "numberOfElements": 1,
+        "empty": false
+    }
 }
 ```
    
@@ -438,6 +495,7 @@ GET   http://localhost:8080/rest/api/category/search?q=product 12
 - price_min : Min Price (Double)
 - price_max : Max Price (Double)
 - sort : (required) Sorting type (String)
+- page : Page number (Integer)
   
 #### Example Request
 ```bash
@@ -448,28 +506,55 @@ GET   http://localhost:8080/rest/api/product/filter?mainCat=elektronik&price_min
 {
     "result": true,
     "errorMessage": null,
-    "data": [
-        {
-            "id": 2,
-            "productName": "Product 2",
-            "description": "Description for Product 2",
-            "price": 29.99,
-            "subCategory": {
-                "id": 0,
-                "categoryName": "bilgisayar_tablet"
+    "data": {
+        "content": [
+            {
+                "id": 2,
+                "productName": "Product 2",
+                "description": "Description for Product 2",
+                "price": 29.99,
+                "subCategory": {
+                    "id": 0,
+                    "categoryName": "bilgisayar_tablet"
+                }
+            },
+            {
+                "id": 1,
+                "productName": "Product 1",
+                "description": "Description for Product 1",
+                "price": 19.99,
+                "subCategory": {
+                    "id": 0,
+                    "categoryName": "bilgisayar_tablet"
+                }
             }
+        ],
+        "pageable": {
+            "pageNumber": 0,
+            "pageSize": 10,
+            "sort": {
+                "empty": false,
+                "sorted": true,
+                "unsorted": false
+            },
+            "offset": 0,
+            "paged": true,
+            "unpaged": false
         },
-        {
-            "id": 1,
-            "productName": "Product 1",
-            "description": "Description for Product 1",
-            "price": 19.99,
-            "subCategory": {
-                "id": 0,
-                "categoryName": "bilgisayar_tablet"
-            }
-        }
-    ]
+        "last": true,
+        "totalPages": 1,
+        "totalElements": 2,
+        "size": 10,
+        "number": 0,
+        "sort": {
+            "empty": false,
+            "sorted": true,
+            "unsorted": false
+        },
+        "first": true,
+        "numberOfElements": 2,
+        "empty": false
+    }
 }
 ```
    
