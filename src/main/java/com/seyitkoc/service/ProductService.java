@@ -2,175 +2,130 @@ package com.seyitkoc.service;
 
 import com.seyitkoc.dto.DtoProduct;
 import com.seyitkoc.dto.DtoProductIU;
-import com.seyitkoc.entity.MainCategory;
 import com.seyitkoc.entity.Product;
 import com.seyitkoc.entity.SubCategory;
 import com.seyitkoc.exception.BaseException;
 import com.seyitkoc.exception.ErrorMessage;
 import com.seyitkoc.exception.MessageType;
 import com.seyitkoc.mapper.ProductMapper;
-import com.seyitkoc.repository.MainCategoryRepository;
 import com.seyitkoc.repository.ProductRepository;
 import com.seyitkoc.repository.SubCategoryRepository;
+import com.seyitkoc.specification.ProductSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final SubCategoryRepository subCategoryRepository;
-    private final MainCategoryRepository mainCategoryRepository;
     private final ProductMapper productMapper;
 
     public ProductService(ProductRepository productRepository,
                           SubCategoryRepository subCategoryRepository,
-                          MainCategoryRepository mainCategoryRepository,
                           ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.subCategoryRepository = subCategoryRepository;
-        this.mainCategoryRepository = mainCategoryRepository;
         this.productMapper = productMapper;
     }
 
     // Get DtoProduct List With SubCategory or MainCategory
-    public List<DtoProduct> getAllProductWithParam(String mainCategory, String subCategory) {
-        List<Product> products = filterProducts(mainCategory, subCategory);
-        return productMapper.toDtoProducts(products);
+    public Page<DtoProduct> getAllProductWithParam(String mainCategory, String subCategory, Integer page) {
+        Page<Product> products = filterProducts(mainCategory, subCategory, page);
+        return products.map(productMapper::toDtoProduct);
     }
-    private List<Product> filterProducts(String mainCategory, String subCategory) {
-
-        if (mainCategory == null && subCategory == null) {
-            return productRepository.findAll();
+    private Page<Product> filterProducts(String mainCategory, String subCategory, Integer page) {
+        int pageNumber = page != null ? page : 0;
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Specification<Product> spec = Specification.where(null);
+        // do nothing
+        if (subCategory != null) {
+            spec = spec.and(ProductSpecification.filterBySubCategory(subCategory));
         }
-
-        if (mainCategory == null) {
-            return filterBySubCategory(subCategory);
+        if (mainCategory != null) {
+            spec = spec.and(ProductSpecification.filterByMainCategory(mainCategory));
         }
-
-        if (subCategory == null) {
-            return filterByMainCategory(mainCategory);
-        }
-
-        return new ArrayList<>();
-    }
-    private List<Product> filterBySubCategory(String subCategory) {
-        return subCategoryRepository.getSubCategoryByCategoryName(subCategory)
-                .map(productRepository::findAllBySubCategory)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, subCategory)));
-    }
-    private List<Product> filterByMainCategory(String mainCategory) {
-        return mainCategoryRepository.getMainCategoryByCategoryName(mainCategory)
-                .map(mainCat -> mainCat.getSubCategories()
-                        .stream()
-                        .flatMap(subCat -> subCat.getProducts().stream())
-                        .collect(Collectors.toList()))
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, mainCategory)));
+        return productRepository.findAll(spec,pageable);
     }
 
 
     //Get DtoProduct List With Searching Keyword
-    public List<DtoProduct> getAllSearchingProductList(String searchingWord) {
-        List<Product> productList = findProductsByKeyword(searchingWord);
-        return productMapper.toDtoProducts(productList);
+    public Page<DtoProduct> getAllSearchingProductList(String searchingWord, Integer page) {
+        Page<Product> productPage = findProductsByKeyword(searchingWord, page);
+        return productPage.map(productMapper::toDtoProduct);
     }
-    private List<Product> findProductsByKeyword(String searchingWord) {
-
-        // Search keyword in product's name or description
-        List<Product> productList = new ArrayList<>(productRepository.findByDescriptionOrProductNameContaining(searchingWord));
-
-        // Search keyword on SubCategories
-        List<SubCategory> subCategoryList = subCategoryRepository.findByKeyword(searchingWord);
-        if (subCategoryList != null) {
-            for (SubCategory subCategory : subCategoryList) {
-                productList.addAll(productRepository.getProductsBySubCategory(subCategory));
-            }
+    private Page<Product> findProductsByKeyword(String searchingWord, Integer page) {
+        int pageNumber = page != null ? page : 0;
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Specification<Product> spec = Specification.where(null);
+        if(searchingWord != null && !searchingWord.isEmpty()){
+            spec = spec
+                    .or(ProductSpecification.nameContains(searchingWord))
+                    .or(ProductSpecification.descriptionContains(searchingWord))
+                    .or(ProductSpecification.mainCategoryContains(searchingWord))
+                    .or(ProductSpecification.subCategoryContains(searchingWord));
         }
 
-        // Search on MainCategories
-        List<MainCategory> mainCategoryList = mainCategoryRepository.findByKeyword(searchingWord);
-        if (mainCategoryList != null) {
-            for (MainCategory mainCategory : mainCategoryList) {
-                for (SubCategory subCategory : mainCategory.getSubCategories()) {
-                    productList.addAll(productRepository.getProductsBySubCategory(subCategory));
-                }
-            }
-        }
-
-        return productList;
+        return productRepository.findAll(spec, pageable);
     }
 
 
     // Get DtoProduct List With Price Range And Sorted
-    public List<DtoProduct> getAllProductsWithFilter(String mainCategory, String subCategory,  Double price_min, Double price_max, String sortString){
-        List<SubCategory> subCategoryList = new ArrayList<>();
-        if (mainCategory == null && subCategory != null){
-            subCategoryList.add(getSubCategoryByName(subCategory));
-        } else if (subCategory == null &&  mainCategory != null){
-            subCategoryList.addAll(getSubCategoriesFromMainCategoryName(mainCategory));
-        }
-        return productMapper.toDtoProducts(findAllProductsWithPriceFilter(subCategoryList,price_min,price_max,sortString));
-    }
-    private void sortList(String sortString, List<Product> productList){
+    public Page<DtoProduct> getAllProductsWithFilter(String mainCategory, String subCategory,  Double price_min, Double price_max, String sortString, Integer page){
+        BigDecimal minPrice = price_min != null ? BigDecimal.valueOf(price_min) : BigDecimal.ZERO;
+        BigDecimal maxPrice = price_max != null ? BigDecimal.valueOf(price_max) : BigDecimal.valueOf(Double.MAX_VALUE);
+        Integer pageNumber = page != null ? page : 0;
 
+        return findAllProductsWithPriceFilter(mainCategory,subCategory,minPrice,maxPrice,sortString,pageNumber);
+    }
+    private Page<DtoProduct> findAllProductsWithPriceFilter(String mainCategory, String subCategoryList, BigDecimal price_min, BigDecimal price_max, String sort, Integer page){
+        Specification<Product> spec = Specification.where(null);
+        if(mainCategory != null){
+            spec = spec.and(ProductSpecification.mainCategoryIs(mainCategory));
+        }
+        if(subCategoryList != null){
+            spec = spec.and(ProductSpecification.subCategoryIs(subCategoryList));
+        }
+        spec = spec.and(ProductSpecification.priceGreaterThenOrEqual(price_min));
+        spec = spec.and(ProductSpecification.priceLessThenOrEqual(price_max));
+        Pageable pageable = PageRequest.of(page, 10, createSort(sort));
+        Page<Product> productPage = productRepository.findAll(spec,pageable);
+
+        return productPage.map(productMapper::toDtoProduct);
+    }
+    private Sort createSort(String sortString){
+        Sort sort;
         if(sortString.split("_")[1].equals("asc")){
-            productList.sort(Comparator.comparing(Product::getPrice));
+            sort = Sort.by(Sort.Order.asc(sortString.split("_")[0]));
         } else if(sortString.split("_")[1].equals("desc")){
-            productList.sort(Comparator.comparing(Product::getPrice).reversed());
+            sort = Sort.by(Sort.Order.desc(sortString.split("_")[0]));
         } else {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION,""));
         }
+        return sort;
     }
-    private List<Product> findAllProductsWithPriceFilter(List<SubCategory> subCategoryList, Double price_min, Double price_max, String sort){
-        List<Product> productList = new ArrayList<>();
 
-        BigDecimal minPrice = price_min != null ? BigDecimal.valueOf(price_min) : BigDecimal.ZERO;
-        BigDecimal maxPrice = price_max != null ? BigDecimal.valueOf(price_max) : BigDecimal.valueOf(Double.MAX_VALUE);
-
-        for (SubCategory subCategory : subCategoryList){
-            productList.addAll(productRepository.findProductsByFilter(subCategory, minPrice, maxPrice));
-        }
-
-        sortList(sort, productList);
-        return productList;
-    }
-    private SubCategory getSubCategoryByName(String name){
-        return subCategoryRepository.findSubCategoryByCategoryName(name)
-                .orElseThrow(()->new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST,name)));
-    }
-    private List<SubCategory> getSubCategoriesFromMainCategoryName(String name){
-         MainCategory mainCategory= mainCategoryRepository.findMainCategoryByCategoryName(name)
-                 .orElseThrow(()-> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST,name)));
-
-         return mainCategory.getSubCategories();
-    }
 
 
     // Get DtoProduct With id or Name
     public DtoProduct getProductWithParams(Long id, String name) {
-        Product product;
+        Specification<Product> spec = Specification.where(null);
         if (id != null && name == null) {
-            product = findProductById(id);
+            spec = spec.and(ProductSpecification.hasId(id));
         } else if (name != null && id == null) {
-            product = findProductByName(name);
+           spec = spec.and(ProductSpecification.hasName(name));
         } else {
             throw new IllegalArgumentException("Either 'id' or 'name' must be provided, but not both.");
         }
 
-        return productMapper.toDtoProduct(product);
-    }
-    private Product findProductById(Long id) {
-        return productRepository.getProductById(id)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, id.toString())));
-    }
-    private Product findProductByName(String name) {
-        return productRepository.getProductByProductName(name)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, name)));
+        return productMapper.toDtoProduct(productRepository.findAll(spec).get(0)); // We assume that there is only one product with the given id or name. Because id and name are unique.
     }
 
 
@@ -193,8 +148,11 @@ public class ProductService {
         updatedProduct.setSubCategory(findSubCategory(dtoProductIU.getSubCategory()));
 
         productRepository.save(updatedProduct);
-
         return productMapper.toDtoProduct(updatedProduct);
+    }
+    private Product findProductById(Long id) {
+        return productRepository.getProductById(id)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, id.toString())));
     }
     private SubCategory findSubCategory(Long subCategoryId) {
         return subCategoryRepository.findById(subCategoryId)

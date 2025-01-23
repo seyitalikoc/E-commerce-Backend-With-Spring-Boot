@@ -5,6 +5,7 @@ import com.seyitkoc.dto.DtoProductIU;
 import com.seyitkoc.entity.RootEntity;
 import com.seyitkoc.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,24 +18,27 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/getList")
-    RootEntity<List<DtoProduct>> getAllProductWithParam(@RequestParam(value = "mainCat", required = false) String mainCategory,
-                                                        @RequestParam(value = "subCat", required = false) String subCategory){
-        return RootEntity.ok(productService.getAllProductWithParam(mainCategory, subCategory));
+    RootEntity<Page<DtoProduct>> getAllProductWithParam(@RequestParam(value = "mainCat", required = false) String mainCategory,
+                                                        @RequestParam(value = "subCat", required = false) String subCategory,
+                                                        @RequestParam(value = "page", required = false) Integer page){
+        return RootEntity.ok(productService.getAllProductWithParam(mainCategory, subCategory, page));
     }
 
     @GetMapping("/search")
-    RootEntity<List<DtoProduct>> getAllSearchingProductList(@RequestParam(value = "q", required = false) String q){
-        return RootEntity.ok(productService.getAllSearchingProductList(q));
+    RootEntity<Page<DtoProduct>> getAllSearchingProductList(@RequestParam(value = "q", required = false) String q,
+                                                            @RequestParam(value = "page", required = false) Integer page){
+        return RootEntity.ok(productService.getAllSearchingProductList(q, page));
     }
 
     @GetMapping("/filter")
-    RootEntity<List<DtoProduct>> getAllProductsWithPriceFilter(@RequestParam(value = "mainCat", required = false) String mainCategory,
+    RootEntity<Page<DtoProduct>> getAllProductsWithPriceFilter(@RequestParam(value = "mainCat", required = false) String mainCategory,
                                                                @RequestParam(value = "subCat", required = false) String subCategory,
                                                                @RequestParam(value = "price_min", required = false) Double price_min,
                                                                @RequestParam(value = "price_max", required = false) Double price_max,
+                                                               @RequestParam(value = "page", required = false) Integer page,
                                                                @RequestParam(value = "sort") String sort){
 
-        return RootEntity.ok(productService.getAllProductsWithFilter(mainCategory, subCategory, price_min, price_max, sort));
+        return RootEntity.ok(productService.getAllProductsWithFilter(mainCategory, subCategory, price_min, price_max, sort, page));
     }
 
     @GetMapping("/get")

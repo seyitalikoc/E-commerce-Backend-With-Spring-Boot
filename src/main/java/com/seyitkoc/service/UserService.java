@@ -11,6 +11,8 @@ import com.seyitkoc.exception.MessageType;
 import com.seyitkoc.mapper.UserMapper;
 import com.seyitkoc.repository.CartRepository;
 import com.seyitkoc.repository.UserRepository;
+import com.seyitkoc.specification.UserSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,24 +34,18 @@ public class UserService {
 
     // Get User From id or Email
     public DtoUser getUserWithParams(Long id, String email){
-        User user;
-        if (id != null && email == null){
-            user = findUserByUserId(id);
-        } else if(email != null && id == null){
-            user = findUserByEmail(email);
-        } else {
+        Specification<User> spec = Specification.where(null);
+        if (id != null){
+            spec = spec.and(UserSpecification.hasId(id));
+        }
+        if(email != null){
+           spec = spec.and(UserSpecification.hasEmail(email));
+        }
+        if (id == null && email == null){
             throw new IllegalArgumentException("Either 'id' or 'email' must be provided, but not both.");
         }
 
-        return userMapper.toDtoUser(user);
-    }
-    private User findUserByUserId(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, id.toString())));
-    }
-    private User findUserByEmail(String email){
-        return userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST,email)));
+        return userMapper.toDtoUser(userRepository.findAll(spec).get(0)); // We assume that there is only one user with the given id or email. Because id and email are unique.
     }
 
 
@@ -63,6 +59,10 @@ public class UserService {
         newUser.setCart(cart);
         userRepository.save(newUser);
         return userMapper.toDtoUser(newUser);
+    }
+    private User findUserByEmail(String email){
+        return userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST,email)));
     }
     private User createUser(DtoUserIU dtoUserIU){
         User user = userMapper.toEntity(dtoUserIU);
@@ -101,6 +101,7 @@ public class UserService {
     }
 
 
+    // Update User Password
     public DtoUser updateUserPassword(String email, UpdatePassword updatePassword){
         User user = findUserByEmail(email);
         if (passwordCheck(user.getPassword(),updatePassword)){
@@ -115,11 +116,16 @@ public class UserService {
         return isPasswordChanged(oldPassword, updatePassword.getOldPassword());
     }
 
+
     // Delete User By id
     public String deleteUser(Long id) {
         User user = findUserByUserId(id);
 
         userRepository.delete(user);
         return "User deleted: " + id;
+    }
+    private User findUserByUserId(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, id.toString())));
     }
 }
