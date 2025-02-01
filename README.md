@@ -218,72 +218,14 @@ PUT   http://localhost:8080/rest/api/cart/addToCart?itemId=1&userEmail=seyit@sey
     }
 ```
 
-### Category Controller Endpoints
-### 1. Get SubCategory List From MainCategory Name
-- URL: /rest/api/category/getSubCategories
-- Method: GET
-  
-#### Query Parameters
-- category : (required) MainCategory Name (String)
-  
-#### Example Request
-```bash
-GET   http://localhost:8080/rest/api/category/getSubCategories?category=elektronik
-```
-#### Success Response
-```json
-{
-    "result": true,
-    "errorMessage": null,
-    "data": [
-        {
-            "id": 0,
-            "categoryName": "bilgisayar_tablet",
-            "mainCategory": {
-                "categoryName": "elektronik"
-            }
-        },
-        {
-            "id": 0,
-            "categoryName": "yazıcılar_projeksiyon",
-            "mainCategory": {
-                "categoryName": "elektronik"
-            }
-        },
-        {
-            "id": 0,
-            "categoryName": "telefon_tekefon-aksesuarlari",
-            "mainCategory": {
-                "categoryName": "elektronik"
-            }
-        }
-    ]
-}
-```
-   
-#### Error Response
-```json
-{
-    "result": false,
-    "errorMessage": {
-        "status": 400,
-        "exception": {
-            "hostName": "seyit",
-            "path": "/rest/api/category/getSubCategories",
-            "createTime": "2025-01-21T12:00:48.571+00:00",
-            "message": "Kayıt bulunamadı. : No main category found with name: market"
-        }
-    },
-    "data": null
-}
-```
+### ProductCategory Controller Endpoints
 
-### 2. Get SubCategory From SubCategory Name
+### 1. Get Category From Category Slug
 - URL: /rest/api/category/get
 - Method: GET
   
 #### Query Parameters
-- category : (required) SubCategory Name (String)
+- category : (required) Category Slug (String)
   
 #### Example Request
 ```bash
@@ -295,11 +237,39 @@ GET   http://localhost:8080/rest/api/category/get?category=elektronik
     "result": true,
     "errorMessage": null,
     "data": {
-        "id": 0,
-        "categoryName": "bilgisayar_tablet",
-        "mainCategory": {
-            "categoryName": "elektronik"
-        }
+        "id": 1,
+        "name": "Elektronik",
+        "slug": "elektronik",
+        "parent": null,
+        "subCategories": [
+            {
+                "id": 2,
+                "name": "Bilgisayar & Tablet",
+                "slug": "bilgisayar_tablet",
+                "parent": {
+                    "id": 1,
+                    "name": "Elektronik",
+                    "slug": "elektronik",
+                    "parent": null,
+                    "subCategories": null,
+                    "products": null,
+                    "updatedAt": "2025-01-27T19:19:26.000+00:00"
+                },
+                "subCategories": [],
+                "products": [
+                    {
+                        "id": 1,
+                        "productName": "Product 1",
+                        "description": "Product Description 1",
+                        "price": 19.99
+                    }
+                ],
+                "updatedAt": "2025-01-27T19:19:50.000+00:00"
+            },
+            ...
+          ],
+        "products": [],
+        "updatedAt": "2025-01-27T19:19:26.000+00:00"
     }
 }
 ```
