@@ -1,8 +1,7 @@
 package com.seyitkoc.specification;
 
-import com.seyitkoc.entity.MainCategory;
 import com.seyitkoc.entity.Product;
-import com.seyitkoc.entity.SubCategory;
+import com.seyitkoc.entity.ProductCategory;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -10,17 +9,11 @@ import java.math.BigDecimal;
 
 public class ProductSpecification {
 
-    public static Specification<Product> filterByMainCategory(String mainCategory) {
+
+    public static Specification<Product> filterByCategory(String category) {
         return (root, query, criteriaBuilder) -> {
-            Join<Product, SubCategory> subCategoryJoin = root.join("subCategory");
-            Join<SubCategory, MainCategory> mainCategoryJoin = subCategoryJoin.join("mainCategory");
-            return criteriaBuilder.equal(mainCategoryJoin.get("categoryName"), mainCategory);
-        };
-    }
-    public static Specification<Product> filterBySubCategory(String subCategory) {
-        return (root, query, criteriaBuilder) -> {
-            Join<Product, SubCategory> subCategoryJoin = root.join("subCategory");
-            return criteriaBuilder.equal(subCategoryJoin.get("categoryName"), subCategory);
+            Join<Product, ProductCategory> categoryJoin = root.join("category");
+            return criteriaBuilder.equal(categoryJoin.get("slug"), category);
         };
     }
 
@@ -31,32 +24,18 @@ public class ProductSpecification {
     public static Specification<Product> descriptionContains(String keyword) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("description"), "%" + keyword + "%");
     }
-    public static Specification<Product> mainCategoryContains(String keyword) {
+    public static Specification<Product> categoryContains(String keyword) {
         return (root, query, criteriaBuilder) -> {
-            Join<Product, SubCategory> subCategoryJoin = root.join("subCategory");
-            Join<SubCategory, MainCategory> mainCategoryJoin = subCategoryJoin.join("mainCategory");
-            return criteriaBuilder.like(mainCategoryJoin.get("categoryName"), "%" + keyword + "%");
-        };
-    }
-    public static Specification<Product> subCategoryContains(String keyword) {
-        return (root, query, criteriaBuilder) -> {
-            Join<Product, SubCategory> subCategoryJoin = root.join("subCategory");
-            return criteriaBuilder.like(subCategoryJoin.get("categoryName"), "%" + keyword + "%");
+            Join<Product, ProductCategory> categoryJoin = root.join("category");
+            return criteriaBuilder.like(categoryJoin.get("slug"), "%" + keyword + "%");
         };
     }
 
 
-    public static Specification<Product> mainCategoryIs(String mainCategory){
+    public static Specification<Product> categoryIs(String category){
         return (root, query, criteriaBuilder) -> {
-            Join<Product, SubCategory> subCategoryJoin = root.join("subCategory");
-            Join<SubCategory, MainCategory> mainCategoryJoin = subCategoryJoin.join("mainCategory");
-            return criteriaBuilder.equal(mainCategoryJoin.get("categoryName"), mainCategory);
-        };
-    }
-    public static Specification<Product> subCategoryIs(String subCategory){
-        return (root, query, criteriaBuilder) -> {
-            Join<Product, SubCategory> subCategoryJoin = root.join("subCategory");
-            return criteriaBuilder.equal(subCategoryJoin.get("categoryName"), subCategory);
+            Join<Product, ProductCategory> categoryJoin = root.join("category");
+            return criteriaBuilder.equal(categoryJoin.get("slug"), category);
         };
     }
     public static Specification<Product> priceGreaterThenOrEqual(BigDecimal price){

@@ -29,8 +29,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/rest/api/auth/**").permitAll()
                         .requestMatchers("/rest/api/user/save").permitAll()
-                        .requestMatchers("/rest/api/product/**").permitAll()
-                        .requestMatchers("/rest/api/category/**").permitAll()
+                        //.requestMatchers("/rest/api/product/**").permitAll()
+                        //.requestMatchers("/rest/api/category/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -21,5 +21,5 @@ public class DtoProduct {
 
     private BigDecimal price;
 
-    private DtoSubCategory subCategory;
+    //private DtoSubCategory subCategory;
 }

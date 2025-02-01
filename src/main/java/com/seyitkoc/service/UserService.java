@@ -71,7 +71,7 @@ public class UserService {
     private Cart createCartForUser(User newUser) {
         Cart cart = new Cart();
         cart.setUser(newUser);
-        cart.setProductList(new ArrayList<>());
+        cart.setCartItems(new ArrayList<>());
         cartRepository.save(cart);
         return cart;
     }

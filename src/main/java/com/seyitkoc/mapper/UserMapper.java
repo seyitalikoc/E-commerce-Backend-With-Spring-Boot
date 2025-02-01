@@ -1,10 +1,6 @@
 package com.seyitkoc.mapper;
 
-import com.seyitkoc.dto.DtoCart;
-import com.seyitkoc.dto.DtoProduct;
-import com.seyitkoc.dto.DtoUser;
-import com.seyitkoc.dto.DtoUserIU;
-import com.seyitkoc.entity.Cart;
+import com.seyitkoc.dto.*;
 import com.seyitkoc.entity.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,10 +12,10 @@ import java.util.stream.Collectors;
 @Component
 public class UserMapper {
 
-    private final ProductMapper productMapper;
+    private final CartItemMapper cartItemMapper;
 
-    public UserMapper(ProductMapper productMapper) {
-        this.productMapper = productMapper;
+    public UserMapper(CartItemMapper cartItemMapper) {
+        this.cartItemMapper = cartItemMapper;
     }
 
     public DtoUser toDtoUser(User user) {
@@ -28,10 +24,10 @@ public class UserMapper {
         BeanUtils.copyProperties(user,dtoUser);
         BeanUtils.copyProperties(user.getCart(),dtoCart);
 
-        List<DtoProduct> dtoProductList = user.getCart().getProductList().stream()
-                .map(productMapper::toDtoProduct)
+        List<DtoCartItem> dtoCartItems = user.getCart().getCartItems().stream()
+                .map(cartItemMapper::toDtoCartItem)
                 .collect(Collectors.toList());
-        dtoCart.setProductList(dtoProductList);
+        dtoCart.setCartItems(dtoCartItems);
         dtoUser.setCart(dtoCart);
         return dtoUser;
     }

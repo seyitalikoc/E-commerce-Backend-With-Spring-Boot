@@ -13,6 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class DtoCart {
 
-    private List<DtoProduct> productList;
+    private List<DtoCartItem> cartItems;
 
 }

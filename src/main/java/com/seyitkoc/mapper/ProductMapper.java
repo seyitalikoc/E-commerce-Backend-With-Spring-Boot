@@ -2,7 +2,6 @@ package com.seyitkoc.mapper;
 
 import com.seyitkoc.dto.DtoProduct;
 import com.seyitkoc.dto.DtoProductIU;
-import com.seyitkoc.dto.DtoSubCategory;
 import com.seyitkoc.entity.Product;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -21,11 +20,11 @@ public class ProductMapper {
 
     public DtoProduct toDtoProduct(Product product) {
         DtoProduct dtoProduct = new DtoProduct();
-        DtoSubCategory dtoSubCategory = new DtoSubCategory();
+        //DtoSubCategory dtoSubCategory = new DtoSubCategory();
         BeanUtils.copyProperties(product, dtoProduct);
-        BeanUtils.copyProperties(product.getSubCategory(), dtoSubCategory);
+        //BeanUtils.copyProperties(product.getProductCategory(), dtoSubCategory);
 
-        dtoProduct.setSubCategory(dtoSubCategory);
+        //dtoProduct.setSubCategory(dtoSubCategory);
         return dtoProduct;
     }
 

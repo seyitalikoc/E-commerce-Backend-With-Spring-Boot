@@ -30,5 +30,5 @@ public class DtoProductIU {
     private BigDecimal price;
 
     @NotNull(message = "SubCategory is required!")
-    private Long subCategory;
+    private Long categoryId;
 }

@@ -4,25 +4,23 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.util.List;
 
 @Entity
-@Table(name = "carts")
+@Table(name = "cart_items")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-public class Cart {
+public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany
-    private List<CartItem> cartItems;
+    @ManyToOne
+    private Product product;
 
-    @OneToOne(mappedBy = "cart")
-    private User user;
+    private int quantity;
+
+    @ManyToOne
+    private Cart cart;
 }

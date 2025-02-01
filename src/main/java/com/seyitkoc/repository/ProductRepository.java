@@ -1,7 +1,6 @@
 package com.seyitkoc.repository;
 
 import com.seyitkoc.entity.Product;
-import com.seyitkoc.entity.SubCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p FROM Product p WHERE p.description LIKE %:keyword% OR p.productName LIKE %:keyword%")
     List<Product> findByDescriptionOrProductNameContaining(String keyword);
 
-    @Query("select p from Product p where p.subCategory = :subCategory and (:price_min is null or p.price >= :price_min) and (:price_max is null or p.price <= :price_max)")
-    List<Product> findProductsByFilter(SubCategory subCategory, BigDecimal price_min, BigDecimal price_max);
+    /*@Query("select p from Product p where p.category = :subCategory and (:price_min is null or p.price >= :price_min) and (:price_max is null or p.price <= :price_max)")
+    List<Product> findProductsByFilter(SubCategory subCategory, BigDecimal price_min, BigDecimal price_max);*/
 
 }
