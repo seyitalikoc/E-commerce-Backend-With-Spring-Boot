@@ -51,7 +51,7 @@ public class UserService {
 
     // Save User
     public DtoUser saveUser(DtoUserIU dtoUserIU) {
-        if(findUserByEmail(dtoUserIU.getEmail())!= null){
+        if(userRepository.findUserByEmail(dtoUserIU.getEmail()).isPresent()){
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION,"Email already used."));
         }
         User newUser = createUser(dtoUserIU);
