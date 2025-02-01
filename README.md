@@ -98,15 +98,26 @@ POST   http://localhost:8080/rest/api/auth/login
     "result": true,
     "errorMessage": null,
     "data": {
-          "firstName": "Seyit Ali",
-          "lastName": "Koç",
-          "email": "seyit@seyitkoc.com",
-          "cart": {
-            "productList": []
-          },
-          "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzZXlpdEBzZXlpdGtvYy5jb20iLCJpYXQiOjE3Mzc0NTk1MzIsImV4cCI6MTczNzQ2MDEzMn0.sgqZ3ljRcM3J7tJ2hw7JjsDC6G6xyjhBXRR8kuozrVQ"
-      }
+        "firstName": "seyit ",
+        "lastName": "koc",
+        "email": "seyit@seyitkoc.com",
+        "cart": {
+            "cartItems": [
+                {
+                    "id": null,
+                    "product": {
+                        "id": 2,
+                        "productName": "Product 2",
+                        "description": "Product Description 2",
+                        "price": 29.99
+                    },
+                    "quantity": 1
+                }
+            ]
+        },
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzZXlpdEBzZXlpdGtvYy5jb20iLCJpYXQiOjE3MzgzOTg1NjgsImV4cCI6MTczODM5OTE2OH0.Oha8sImnqP9L_G3fdOsb7u5IzLsOejfaD6IWIruxUe4"
     }
+  }
 ```
    
 #### Error Response
@@ -142,22 +153,22 @@ PUT   http://localhost:8080/rest/api/cart/addToCart?itemId=1&userEmail=seyit@sey
 #### Success Response
 ```json
 {
-      "result": true,
-      "errorMessage": null,
-      "data": {
-          "productList": [
-              {
-                  "id": 1,
-                  "productName": "Product 1",
-                  "description": "Description for Product 1",
-                  "price": 19.99,
-                  "subCategory": {
-                      "id": 0,
-                      "categoryName": "bilgisayar_tablet"
-                  }
-              }
-          ]
-       }
+    "result": true,
+    "errorMessage": null,
+    "data": {
+        "cartItems": [
+            {
+                "id": null,
+                "product": {
+                    "id": 2,
+                    "productName": "Product 2",
+                    "description": "Product Description 2",
+                    "price": 29.99
+                },
+                "quantity": 2
+            }
+        ]
+    }
 }
 ```
    
