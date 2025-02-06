@@ -812,7 +812,7 @@ GET   http://localhost:8080/rest/api/user/?id=1000
 }
 ```
 
-### 2. Get User By Id or Email
+### 2. Save User
 - URL: /rest/api/user/save
 - Method: POST
 
